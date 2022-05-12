@@ -1,48 +1,46 @@
-package gray
+package main
 
 import (
-    "image"
-    "image/png"
-    "image/color"
-    "os"
+	"image"
+	"image/color"
+	"image/jpeg"
+	"log"
+	"os"
 )
 
-// 二値化のしきい値
-const threshold = 128
+const threshold = 150
 
 func main() {
-    // 画像ファイルを開く(書き込み元)
-    src, _ := os.Open("../IMG_2656.jpeg")
-    defer src.Close()
+	in, _ := os.Open("../../IMG_2656.jpeg")
+	defer in.Close()
+	out, _ := os.Create("out.jpeg")
+	defer out.Close()
 
-    // デコードしてイメージオブジェクトを準備
-    srcImg, _, err := image.Decode(src)
-    if err != nil {
-        panic(err)
-    }
-    srcBounds := srcImg.Bounds()
+	Img, err := jpeg.Decode(in)
+	if err != nil {
+		log.Fatal(err)
+	}
+	srcBounds := Img.Bounds()
 
-    // 出力用イメージ
-    dest := image.NewGray(srcBounds)
+	// 出力用イメージ
+	dest := image.NewGray(srcBounds)
 
-    // 二値化
-    for v := srcBounds.Min.Y; v < srcBounds.Max.Y; v++ {
-        for h := srcBounds.Min.X; h < srcBounds.Max.X; h++ {
-            c := color.GrayModel.Convert(srcImg.At(h, v))
-            gray, _ := c.(color.Gray)
-            // しきい値で二値化
-            if gray.Y > threshold {
-                gray.Y = 255
-            } else {
-                gray.Y = 0
-            }
-            dest.Set(h, v, gray)
-        }
-    }
+	// 二値化
+	for v := srcBounds.Min.Y; v < srcBounds.Max.Y; v++ {
+		for h := srcBounds.Min.X; h < srcBounds.Max.X; h++ {
+			c := color.GrayModel.Convert(Img.At(h, v))
+			gray, _ := c.(color.Gray)
+			// しきい値で二値化
+			if gray.Y > threshold {
+				gray.Y = 255
+			} else {
+				gray.Y = 0
+			}
+			dest.Set(h, v, gray)
+		}
+	}
 
-    // 書き出し用ファイル準備
-    outfile, _ := os.Create("out.png")
-    defer outfile.Close()
-    // 書き出し
-    png.Encode(outfile, dest)
+	// 書き出し用ファイル準備
+	// 書き出し
+	jpeg.Encode(out, dest, nil)
 }
