@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	_ "image"
 
 	vision "cloud.google.com/go/vision/apiv1"
 )
@@ -20,7 +21,7 @@ func main() {
 	defer client.Close()
 
 	// Sets the name of the image file to annotate.
-	filename := "./test.jpg"
+	filename := "../IMG_2656.jpeg"
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -37,7 +38,6 @@ func main() {
 		log.Fatalf("Failed to detect labels: %v", err)
 	}
 
-	fmt.Println("Labels:")
 	for _, label := range labels {
 		fmt.Println(label.Description)
 	}
